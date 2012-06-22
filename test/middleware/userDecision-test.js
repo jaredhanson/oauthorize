@@ -158,6 +158,78 @@ vows.describe('userDecision').addBatch({
         assert.isObject(req.oauth.res);
         assert.isFalse(req.oauth.res.allow);
       },
+      'should redirect to callbackURL' : function(err, req, res, e) {
+        assert.equal(res._redirect, 'http://example.com/auth/callback?oauth_problem=user_refused');
+      },
+      'should not invoke next middleware' : function(err, req, res, e) {
+        assert.isUndefined(res._next);
+      },
+      'should remove transaction from session' : function(err, req, res, e) {
+        assert.isUndefined(req.session['authorize']['abc123']);
+      },
+    },
+  },
+  
+  'middleware with redirectOnCancel option that handles a user decision to disallow': {
+    topic: function() {
+      var server = {};
+      
+      return userDecision(server, { redirectOnCancel: false },
+        // issue function
+        function(token, user, ares, done) {
+          if (token == 'aaaa-bbbb-cccc' && user.id == 'u1234' && ares.allow) {
+            done(null, 'barx')
+          } else {
+            done(new Error('something is wrong'))
+          }
+        }
+      );
+    },
+
+    'when handling a request': {
+      topic: function(userDecision) {
+        var self = this;
+        var req = new MockRequest();
+        req.query = {};
+        req.body = { cancel: true };
+        req.session = {};
+        req.session['authorize'] = {};
+        req.session['authorize']['abc123'] = { protocol: 'oauth' };
+        req.user = { id: 'u1234', username: 'bob' };
+        req.oauth = {};
+        req.oauth.transactionID = 'abc123';
+        req.oauth.callbackURL = 'http://example.com/auth/callback';
+        req.oauth.authz = { token: 'aaaa-bbbb-cccc' }
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(null, req, res);
+        }
+
+        function next(err) {
+          res._next = true;
+          res.end();
+        }
+        process.nextTick(function () {
+          userDecision(req, res, next)
+        });
+      },
+
+      'should not call done' : function(err, req, res, e) {
+        assert.isNull(err);
+      },
+      'should not next with error' : function(err, req, res, e) {
+        assert.isUndefined(e);
+      },
+      'should set user on oauth transaction' : function(err, req, res, e) {
+        assert.isObject(req.oauth.user);
+        assert.equal(req.oauth.user.id, 'u1234');
+        assert.equal(req.oauth.user.username, 'bob');
+      },
+      'should set res on oauth transaction' : function(err, req, res, e) {
+        assert.isObject(req.oauth.res);
+        assert.isFalse(req.oauth.res.allow);
+      },
       'should not redirect to callbackURL' : function(err, req, res, e) {
         assert.isUndefined(res._redirect);
       },
@@ -375,11 +447,11 @@ vows.describe('userDecision').addBatch({
         assert.isObject(req.oauth.res);
         assert.isFalse(req.oauth.res.allow);
       },
-      'should not redirect to callbackURL' : function(err, req, res, e) {
-        assert.isUndefined(res._redirect);
+      'should redirect to callbackURL' : function(err, req, res, e) {
+        assert.equal(res._redirect, 'http://example.com/auth/callback?oauth_problem=user_refused');
       },
-      'should invoke next middleware' : function(err, req, res, e) {
-        assert.isTrue(res._next);
+      'should not invoke next middleware' : function(err, req, res, e) {
+        assert.isUndefined(res._next);
       },
       'should remove transaction from session' : function(err, req, res, e) {
         assert.isUndefined(req.session['authorize']['abc123']);
@@ -571,11 +643,11 @@ vows.describe('userDecision').addBatch({
         assert.isObject(req.oauth.res);
         assert.isFalse(req.oauth.res.allow);
       },
-      'should not redirect to callbackURL' : function(err, req, res, e) {
-        assert.isUndefined(res._redirect);
+      'should redirect to callbackURL' : function(err, req, res, e) {
+        assert.equal(res._redirect, 'http://example.com/auth/callback?oauth_problem=user_refused');
       },
       'should invoke next middleware' : function(err, req, res, e) {
-        assert.isTrue(res._next);
+        assert.isUndefined(res._next);
       },
       'should remove transaction from session' : function(err, req, res, e) {
         assert.isUndefined(req.session['authorize']['abc123']);
