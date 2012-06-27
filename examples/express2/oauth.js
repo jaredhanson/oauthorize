@@ -70,7 +70,13 @@ exports.requestToken = server.requestToken(function(client, callbackURL, done) {
   }
 );
 
-exports.accessToken = server.accessToken(function(client, requestToken, verifier, done) {
+exports.accessToken = server.accessToken(function(client, requestToken, verifier, info, done) {
+    console.log('issuing access token...');
+    console.dir(client)
+    console.log(requestToken);
+    console.log(verifier);
+    console.dir(info)
+  
     done(null, 'nnch734d00sl2jdk', 'pfkkdhi9sl3r4s00')
   }
 );
@@ -78,15 +84,16 @@ exports.accessToken = server.accessToken(function(client, requestToken, verifier
 
 // User authorization endpoint
 //
-// `userAuthorization` middleware accepts an `validate` callback which is
+// `userAuthorization` middleware accepts a `validate` callback which is
 // responsible for retrieving details about a previously issued request token.
 // Once retreived, the `done` callback must be invoked with the client to which
 // the request token was issued, as well as the callback URL to which the user
 // will be redirected after an authorization decision is obtained.
 //
 // This middleware simply initializes a new authorization transaction.  It is
-// the application's responsibility to authenticate the user and obtain their
-// approval (displaying details about the client requesting authorization).
+// the application's responsibility to authenticate the user and render a dialog
+// to obtain their approval (displaying details about the client requesting
+// authorization).
 
 exports.userAuthorization = server.userAuthorization(function(requestToken, done) {
     console.log('authorizing request token...');

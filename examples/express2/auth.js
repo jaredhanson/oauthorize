@@ -23,8 +23,34 @@ passport.use('consumer', new ConsumerStrategy(
       return done(null, client, client.consumerSecret);
     });
   },
+  // token callback
+  //
+  // This callback find the request token identified by `requestToken`.  This
+  // is typcially only used when a client is exchanging a request token for
+  // an access token.  The `done` callback accepts the corresponding token
+  // secret as the second argument.  The `ConsumerStrategy` will use this secret to
+  // validate the request signature, failing authentication if it does not
+  // match.
+  //
+  // Furthermore, additional arbitrary `info` can be passed as the third
+  // argument to the callback.  A request token will often have associated
+  // details such as the user who approved it, scope of access, etc.  These
+  // details can be retrieved from the database once, and carried through to
+  // other middleware that will handle then (for example, `oauthorize.accessToken`).
   function(requestToken, done) {
-    done(null, 'hdhd0244k9j7ao03');
+    console.log('look up req tok: ' + requestToken)
+    db.requestTokens.find(requestToken, function(err, token) {
+      if (err) { return done(err); }
+      console.log('found!')
+      console.dir(token)
+      
+      var info = { verifier: token.verifier,
+        clientID: token.clientID,
+        userID: token.userID,
+        approved: token.approved
+      }
+      done(null, token.secret, info);
+    });
   },
   function(timestamp, nonce, done) {
     done(null, true)
