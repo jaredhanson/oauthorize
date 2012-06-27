@@ -102,7 +102,29 @@ exports.userAuthorization = server.userAuthorization(function(requestToken, done
   }
 );
 
-exports.userDecision = server.userDecision(function(token, user, res, done) {
-    return done(null, 'hfdp7dh39dks9884');
+
+// User decision endpoint
+//
+// `userDecision` middleware processes a user's decision to allow or deny access
+// requested by a client application.  It accepts an `issue` callback which is
+// responsible for issuing a verifier, which is used to verify the subsequent
+// request by the client to exchange the request token for an access token.
+//
+// The `issue` callback accepts as arguments a `requestToken`, `user`, and
+// `res`.  `user` is the authenticated user that approved the request.  `res` is
+// the response to the OAuth transaction, which may include details such as
+// scope of access, duration of access, and any other parameters parsed by the
+// application.  These details are encoded into the token, to be used when
+// issuing the permanent access token.
+
+exports.userDecision = server.userDecision(function(requestToken, user, res, done) {
+    var verifier = utils.uid(8);
+    
+    // TODO: Authenticate these requests
+    //db.requestTokens.approve(requestToken, user.id, verifier, function(err) {
+    db.requestTokens.approve(requestToken, 'x', verifier, function(err) {
+      if (err) { return done(err); }
+      return done(null, verifier);
+    });
   }
 );

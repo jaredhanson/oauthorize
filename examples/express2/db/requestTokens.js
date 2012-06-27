@@ -10,3 +10,12 @@ exports.save = function(token, secret, clientID, callbackURL, done) {
   tokens[token] = { secret: secret, clientID: clientID, callbackURL: callbackURL };
   return done(null);
 };
+
+exports.approve = function(t, userID, verifier, done) {
+  var token = tokens[t];
+  token.userID = userID;
+  token.verifier = verifier;
+  token.approved = true;
+  return done(null);
+};
+
