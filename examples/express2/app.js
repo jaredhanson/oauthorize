@@ -1,9 +1,14 @@
+/**
+ * Module dependencies.
+ */
 var express = require('express')
   , passport = require('passport')
   , site = require('./site')
   , oauth = require('./oauth')
   , user = require('./user')
   
+  
+// Express configuration
   
 var app = express.createServer();
 app.set('view engine', 'ejs');
@@ -15,6 +20,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
 app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+
+// Passport configuration
 
 require('./auth');
 
