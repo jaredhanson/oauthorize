@@ -31,9 +31,29 @@ server.serializeClient(function(client, done) {
 server.deserializeClient(function(id, done) {
   console.log('!! deserialize client: ');
   console.dir(id)
-  return done(null, id);
+  //return done(null, id);
+  
+  db.clients.find(id, function(err, client) {
+    if (err) { return done(err); }
+    return done(null, client);
+  });
 });
 
+
+// Request token endpoint
+//
+// `requestToken` middleware accepts an `issue` callback which is responsible
+// for issuing a request token and corresponding secret.  This token serves as
+// a temporary credential, and is used when requesting authorization from the
+// user.  The request token is bound to the client to which it is issued.
+//
+// This example is kept intentionally simple, and may not represent best
+// security practices.  Implementers are encouraged to understand the
+// intricacies of the OAuth protocol and the security considerations regarding
+// request tokens.  In particular, the token should have a limited lifetime.
+// Furthermore, it may be dificult or impossible to guarantee the
+// confidentiality of client credentials, in which case it is advisable
+// to validate the `callbackURL` against a registered value.
 
 exports.requestToken = server.requestToken(function(client, callbackURL, done) {
     console.log('issuing request token...');
@@ -45,7 +65,7 @@ exports.requestToken = server.requestToken(function(client, callbackURL, done) {
     
     db.requestTokens.save(token, secret, client.id, callbackURL, function(err) {
       if (err) { return done(err); }
-      done(null, token, secret);
+      return done(null, token, secret);
     });
   }
 );
@@ -56,8 +76,29 @@ exports.accessToken = server.accessToken(function(client, requestToken, verifier
 );
 
 
-exports.userAuthorization = server.userAuthorization(function(token, done) {
-    done(null, { id: '1234', name: 'Some OAuth Application' }, 'http://macbook-air.local.jaredhanson.net:3001/auth/swayside/oauth/callback');
+// User authorization endpoint
+//
+// `userAuthorization` middleware accepts an `validate` callback which is
+// responsible for retrieving details about a previously issued request token.
+// Once retreived, the `done` callback must be invoked with the client to which
+// the request token was issued, as well as the callback URL to which the user
+// will be redirected after an authorization decision is obtained.
+//
+// This middleware simply initializes a new authorization transaction.  It is
+// the application's responsibility to authenticate the user and obtain their
+// approval (displaying details about the client requesting authorization).
+
+exports.userAuthorization = server.userAuthorization(function(requestToken, done) {
+    console.log('authorizing request token...');
+    console.log(requestToken)
+  
+    db.requestTokens.find(requestToken, function(err, token) {
+      if (err) { return done(err); }
+      db.clients.find(token.clientID, function(err, client) {
+        if (err) { return done(err); }
+        return done(null, client, token.callbackURL);
+      });
+    });
   }
 );
 
