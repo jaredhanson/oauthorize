@@ -44,11 +44,13 @@ app.post('/dialog/authorize/decision',
 
 app.post('/oauth/request_token',
   passport.authenticate('consumer', { session: false }),
-  oauth.requestToken);
+  oauth.requestToken,
+  oauth.errorHandler());
   
 app.post('/oauth/access_token',
   passport.authenticate('consumer', { session: false }),
-  oauth.accessToken);
+  oauth.accessToken,
+  oauth.errorHandler());
   
 app.get('/api/userinfo',
   passport.authenticate('token', { session: false }),

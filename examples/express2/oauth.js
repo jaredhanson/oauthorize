@@ -70,14 +70,25 @@ exports.requestToken = server.requestToken(function(client, callbackURL, done) {
   }
 );
 
+// TODO: Remove verifier from callback.
 exports.accessToken = server.accessToken(function(client, requestToken, verifier, info, done) {
     console.log('issuing access token...');
     console.dir(client)
     console.log(requestToken);
     console.log(verifier);
     console.dir(info)
+    
+    if (!info.approved) { return done(null, false); }
+    if (client.id !== info.clientID) { return done(null, false); }
+    //if (verifier !== info.verifier) { return done(null, false); }
+    
+    var token = utils.uid(16)
+      , secret = utils.uid(64)
   
-    done(null, 'nnch734d00sl2jdk', 'pfkkdhi9sl3r4s00')
+    db.accessTokens.save(token, secret, info.userID, info.clientID, function(err) {
+      if (err) { return done(err); }
+      return done(null, token, secret);
+    });
   }
 );
 
@@ -109,7 +120,6 @@ exports.userAuthorization = server.userAuthorization(function(requestToken, done
   }
 );
 
-
 // User decision endpoint
 //
 // `userDecision` middleware processes a user's decision to allow or deny access
@@ -135,3 +145,6 @@ exports.userDecision = server.userDecision(function(requestToken, user, res, don
     });
   }
 );
+
+
+exports.errorHandler = server.errorHandler;
