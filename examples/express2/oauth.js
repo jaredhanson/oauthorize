@@ -70,12 +70,15 @@ exports.requestToken = server.requestToken(function(client, callbackURL, done) {
   }
 );
 
-// TODO: Remove verifier from callback.
-exports.accessToken = server.accessToken(function(client, requestToken, verifier, info, done) {
+exports.accessToken = server.accessToken(
+  function(requestToken, verifier, info, done) {
+    if (verifier != info.verifier) { return done(null, false); }
+    return done(null, true);
+  },
+  function(client, requestToken, info, done) {
     console.log('issuing access token...');
     console.dir(client)
     console.log(requestToken);
-    console.log(verifier);
     console.dir(info)
     
     if (!info.approved) { return done(null, false); }
