@@ -27,13 +27,22 @@ vows.describe('accessToken').addBatch({
   
   'middleware that issues an access token': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, done) {
-        if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
-          done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
-        } else {
-          done(new Error('something is wrong'))
+      return accessToken(
+        function(requestToken, verifier, done) {
+          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
+            done(null, true);
+          } else {
+            done(new Error('something is wrong'))
+          }
+        },
+        function(consumer, requestToken, done) {
+          if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa') {
+            done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
+          } else {
+            done(new Error('something is wrong'))
+          }
         }
-      });
+      );
     },
 
     'when handling a request': {
@@ -74,13 +83,22 @@ vows.describe('accessToken').addBatch({
   
   'middleware that issues an access token using info': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, info, done) {
-        if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa' && verifier === '473f82d3' && info.user.id == 'user-1235') {
-          done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
-        } else {
-          done(new Error('something is wrong'))
+      return accessToken(
+        function(requestToken, verifier, done) {
+          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
+            done(null, true);
+          } else {
+            done(new Error('something is wrong'))
+          }
+        },
+        function(consumer, requestToken, info, done) {
+          if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa' && info.user.id == 'user-1235') {
+            done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
+          } else {
+            done(new Error('something is wrong'))
+          }
         }
-      });
+      );
     },
 
     'when handling a request': {
@@ -122,13 +140,22 @@ vows.describe('accessToken').addBatch({
   
   'middleware that issues an access token with params': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, done) {
-        if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
-          done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk', { foo: 'bar' });
-        } else {
-          done(new Error('something is wrong'))
+      return accessToken(
+        function(requestToken, verifier, done) {
+          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
+            done(null, true);
+          } else {
+            done(new Error('something is wrong'))
+          }
+        },
+        function(consumer, requestToken, done) {
+          if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa') {
+            done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk', { foo: 'bar' });
+          } else {
+            done(new Error('something is wrong'))
+          }
         }
-      });
+      );
     },
 
     'when handling a request': {
@@ -169,9 +196,14 @@ vows.describe('accessToken').addBatch({
   
   'middleware that does not issue an access token': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, done) {
-        return done(null, false)
-      });
+      return accessToken(
+        function(requestToken, verifier, done) {
+          return done(null, true)
+        },
+        function(consumer, requestToken, done) {
+          return done(null, false)
+        }
+      );
     },
 
     'when handling a request': {
@@ -209,9 +241,14 @@ vows.describe('accessToken').addBatch({
   
   'middleware that errors while issuing an access token': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, done) {
-        done(new Error('something is wrong'))
-      });
+      return accessToken(
+        function(requestToken, verifier, done) {
+          done(null, true);
+        },
+        function(consumer, requestToken, done) {
+          done(new Error('something is wrong'))
+        }
+      );
     },
 
     'when handling a request': {
@@ -247,9 +284,14 @@ vows.describe('accessToken').addBatch({
   
   'middleware that handles a request without authInfo': {
     topic: function() {
-      return accessToken(function(consumer, requestToken, verifier, done) {
-        done(null, 'a1b2c3', 'shh-its-secret');
-      });
+      return accessToken(
+        function(requestToken, verifier, done) {
+          done(null, true);
+        },
+        function(consumer, requestToken, done) {
+          done(null, 'a1b2c3', 'shh-its-secret');
+        }
+      );
     },
 
     'when handling a request': {
@@ -280,9 +322,15 @@ vows.describe('accessToken').addBatch({
     },
   },
   
-  'middleware constructed without an issue callback': {
+  'middleware constructed without a verify callback': {
     'should throw an error': function () {
       assert.throws(function() { accessToken() });
+    },
+  },
+  
+  'middleware constructed without an issue callback': {
+    'should throw an error': function () {
+      assert.throws(function() { accessToken(function() {}) });
     },
   },
   
