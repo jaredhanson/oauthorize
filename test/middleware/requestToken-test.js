@@ -42,7 +42,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback'
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback'
         
         var res = new MockResponse();
         res.done = function() {
@@ -88,7 +89,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback'
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback'
         
         var res = new MockResponse();
         res.done = function() {
@@ -141,7 +143,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback';
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback';
         req.query = {};
         req.query['scribble'] = 'scrobble';
         
@@ -189,7 +192,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.client = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback'
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback'
         
         var res = new MockResponse();
         res.done = function() {
@@ -231,7 +235,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback'
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback'
         
         var res = new MockResponse();
         res.done = function() {
@@ -270,7 +275,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback'
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback'
         
         var res = new MockResponse();
         res.done = function() {
@@ -314,7 +320,8 @@ vows.describe('requestToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
-        req.authInfo.callbackURL = 'http://www.example.com/auth/callback';
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.callbackURL = 'http://www.example.com/auth/callback';
         req.query = {};
         req.query['scribble'] = 'scrobble';
         
