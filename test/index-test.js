@@ -22,6 +22,11 @@ vows.describe('oauthorize').addBatch({
     assert.isFunction(oauthorize.accessToken);
   },
   
+  'should export errors': function () {
+    assert.isFunction(oauthorize.AuthorizationError);
+    assert.isFunction(oauthorize.BadRequestError);
+  },
+  
   'createServer': {
     topic: function() {
       return oauthorize.createServer();
