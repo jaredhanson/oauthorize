@@ -82,6 +82,64 @@ vows.describe('accessToken').addBatch({
     },
   },
   
+  'middleware with userProperty option that issues an access token': {
+    topic: function() {
+      return accessToken(
+        { userProperty: 'client' },
+        function(requestToken, verifier, done) {
+          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
+            done(null, true);
+          } else {
+            done(new Error('something is wrong'))
+          }
+        },
+        function(consumer, requestToken, done) {
+          if (consumer.id == 'client-1234' && requestToken === 'hdk48Djdsa') {
+            done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
+          } else {
+            done(new Error('something is wrong'))
+          }
+        }
+      );
+    },
+
+    'when handling a request': {
+      topic: function(requestToken) {
+        var self = this;
+        var req = new MockRequest();
+        req.client = { id: 'client-1234' };
+        req.authInfo = {};
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.token = 'hdk48Djdsa'
+        req.authInfo.oauth.verifier = '473f82d3'
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(null, req, res);
+        }
+
+        function next(err) {
+          self.callback(new Error('should not be called'));
+        }
+        process.nextTick(function () {
+          requestToken(req, res, next)
+        });
+      },
+
+      'should not call next' : function(err, req, res) {
+        assert.isNull(err);
+      },
+      'should set headers' : function(err, req, res) {
+        assert.equal(res._headers['Content-Type'], 'x-www-form-urlencoded');
+        assert.equal(res._headers['Cache-Control'], 'no-store');
+        assert.equal(res._headers['Pragma'], 'no-cache');
+      },
+      'should send response' : function(err, req, res) {
+        assert.equal(res._data, 'oauth_token=j49ddk933skd9dks&oauth_token_secret=ll399dj47dskfjdk');
+      },
+    },
+  },
+  
   'middleware that issues an access token using info': {
     topic: function() {
       return accessToken(
