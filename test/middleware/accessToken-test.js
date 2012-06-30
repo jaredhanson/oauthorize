@@ -108,10 +108,10 @@ vows.describe('accessToken').addBatch({
         var req = new MockRequest();
         req.user = { id: 'client-1234' };
         req.authInfo = {};
+        req.authInfo.user = { id: 'user-1235' }
         req.authInfo.oauth = {};
         req.authInfo.oauth.token = 'hdk48Djdsa'
         req.authInfo.oauth.verifier = '473f82d3'
-        req.authInfo.user = { id: 'user-1235' }
         
         var res = new MockResponse();
         res.done = function() {

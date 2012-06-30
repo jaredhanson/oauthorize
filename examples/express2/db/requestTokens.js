@@ -11,11 +11,10 @@ exports.save = function(token, secret, clientID, callbackURL, done) {
   return done(null);
 };
 
-exports.approve = function(t, userID, verifier, done) {
-  var token = tokens[t];
+exports.approve = function(key, userID, verifier, done) {
+  var token = tokens[key];
   token.userID = userID;
   token.verifier = verifier;
   token.approved = true;
   return done(null);
 };
-

@@ -6,6 +6,8 @@
     "ejs": "0.7.x",
     "oauthorize": "0.x.x",
     "passport": "0.1.x",
-    "passport-http-oauth": "0.x.x"
+    "passport-local": "0.1.x",
+    "passport-http-oauth": "0.x.x",
+    "connect-ensure-login": "0.x.x"
   }
 }

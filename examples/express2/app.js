@@ -16,6 +16,12 @@ app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());
 app.use(express.session({ secret: 'keyboard cat' }));
+app.use(function(req, res, next) {
+  console.log('-- session --');
+  console.dir(req.session);
+  console.log('-------------');
+  next()
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
@@ -27,34 +33,18 @@ require('./auth');
 
 
 app.get('/', site.index);
+app.get('/login', site.loginForm);
+app.post('/login', site.login);
+app.get('/logout', site.logout);
+app.get('/account', site.account);
 
-app.get('/dialog/authorize',
-  oauth.userAuthorization,
-  function(req, res){
-    res.render('dialog', { transactionID: req.oauth.transactionID, client: req.oauth.client });
-  });
-  
-app.post('/dialog/authorize/decision',
-  function(req, res, next) {
-    console.dir(req.session),
-    console.dir(req.body),
-    next()
-  },
-  oauth.userDecision);
+app.get('/dialog/authorize', oauth.userAuthorization);
+app.post('/dialog/authorize/decision', oauth.userDecision);
 
-app.post('/oauth/request_token',
-  passport.authenticate('consumer', { session: false }),
-  oauth.requestToken,
-  oauth.errorHandler());
+app.post('/oauth/request_token', oauth.requestToken);
+app.post('/oauth/access_token', oauth.accessToken);
   
-app.post('/oauth/access_token',
-  passport.authenticate('consumer', { session: false }),
-  oauth.accessToken,
-  oauth.errorHandler());
-  
-app.get('/api/userinfo',
-  passport.authenticate('token', { session: false }),
-  user.info);
+app.get('/api/userinfo', user.info);
 
 
 app.listen(3000);

@@ -1,3 +1,11 @@
-exports.info = function(req, res) {
-  res.json({ user_id: 1, name: 'Bob Smith' })
-};
+/**
+ * Module dependencies.
+ */
+var passport = require('passport')
+
+exports.info = [
+  passport.authenticate('token', { session: false }),
+  function(req, res) {
+    res.json({ user_id: req.user.id, name: req.user.name })
+  }
+]

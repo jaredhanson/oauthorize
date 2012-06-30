@@ -193,7 +193,7 @@ vows.describe('userDecision').addBatch({
         var self = this;
         var req = new MockRequest();
         req.query = {};
-        req.body = { cancel: true };
+        req.body = { cancel: 'Deny' };
         req.session = {};
         req.session['authorize'] = {};
         req.session['authorize']['abc123'] = { protocol: 'oauth' };
@@ -265,7 +265,7 @@ vows.describe('userDecision').addBatch({
         var self = this;
         var req = new MockRequest();
         req.query = {};
-        req.body = { cancel: true };
+        req.body = { cancel: 'Deny' };
         req.session = {};
         req.session['authorize'] = {};
         req.session['authorize']['abc123'] = { protocol: 'oauth' };
@@ -336,7 +336,7 @@ vows.describe('userDecision').addBatch({
         var self = this;
         var req = new MockRequest();
         req.query = {};
-        req.body = { cancel: true };
+        req.body = { cancel: 'Deny' };
         req.session = {};
         req.session['authorize'] = {};
         req.session['authorize']['abc123'] = { protocol: 'oauth' };
