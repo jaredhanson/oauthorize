@@ -98,6 +98,74 @@ vows.describe('userDecision').addBatch({
     },
   },
   
+  'middleware that handles a user decision to allow without res in issue callback': {
+    topic: function() {
+      var server = {};
+      
+      return userDecision(server,
+        // issue function
+        function(token, user, done) {
+          if (token == 'aaaa-bbbb-cccc' && user.id == 'u1234') {
+            done(null, 'barx')
+          } else {
+            done(new Error('something is wrong'))
+          }
+        }
+      );
+    },
+
+    'when handling a request': {
+      topic: function(userDecision) {
+        var self = this;
+        var req = new MockRequest();
+        req.query = {};
+        req.body = {};
+        req.session = {};
+        req.session['authorize'] = {};
+        req.session['authorize']['abc123'] = { protocol: 'oauth' };
+        req.user = { id: 'u1234', username: 'bob' };
+        req.oauth = {};
+        req.oauth.transactionID = 'abc123';
+        req.oauth.callbackURL = 'http://example.com/auth/callback';
+        req.oauth.authz = { token: 'aaaa-bbbb-cccc' }
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(null, req, res);
+        }
+
+        function next(err) {
+          self.callback(new Error('should not be called'));
+        }
+        process.nextTick(function () {
+          userDecision(req, res, next)
+        });
+      },
+
+      'should not call done' : function(err, req, res, e) {
+        assert.isNull(err);
+      },
+      'should not next with error' : function(err, req, res, e) {
+        assert.isUndefined(e);
+      },
+      'should set user on oauth transaction' : function(err, req, res, e) {
+        assert.isObject(req.oauth.user);
+        assert.equal(req.oauth.user.id, 'u1234');
+        assert.equal(req.oauth.user.username, 'bob');
+      },
+      'should set res on oauth transaction' : function(err, req, res, e) {
+        assert.isObject(req.oauth.res);
+        assert.isTrue(req.oauth.res.allow);
+      },
+      'should redirect to callbackURL' : function(err, req, res, e) {
+        assert.equal(res._redirect, 'http://example.com/auth/callback?oauth_token=aaaa-bbbb-cccc&oauth_verifier=barx');
+      },
+      'should remove transaction from session' : function(err, req, res, e) {
+        assert.isUndefined(req.session['authorize']['abc123']);
+      },
+    },
+  },
+  
   'middleware that handles a user decision to allow without a callback URL': {
     topic: function() {
       var server = {};
