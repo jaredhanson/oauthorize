@@ -143,8 +143,8 @@ vows.describe('accessToken').addBatch({
   'middleware that issues an access token using info': {
     topic: function() {
       return accessToken(
-        function(requestToken, verifier, done) {
-          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3') {
+        function(requestToken, verifier, info, done) {
+          if (requestToken === 'hdk48Djdsa' && verifier === '473f82d3' && info.user.id == 'user-1235') {
             done(null, true);
           } else {
             done(new Error('something is wrong'))
@@ -297,6 +297,52 @@ vows.describe('accessToken').addBatch({
         assert.instanceOf(e, Error);
         assert.equal(e.name, 'AuthorizationError');
         assert.equal(e.code, 'token_rejected');
+      },
+    },
+  },
+  
+  'middleware that does not verify the verification code': {
+    topic: function() {
+      return accessToken(
+        function(requestToken, verifier, done) {
+          return done(null, false)
+        },
+        function(consumer, requestToken, done) {
+          done(null, 'j49ddk933skd9dks', 'll399dj47dskfjdk');
+        }
+      );
+    },
+
+    'when handling a request': {
+      topic: function(requestToken) {
+        var self = this;
+        var req = new MockRequest();
+        req.user = { id: 'client-1234' };
+        req.authInfo = {};
+        req.authInfo.oauth = {};
+        req.authInfo.oauth.token = 'hdk48Djdsa'
+        req.authInfo.oauth.verifier = '473f82d3'
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(new Error('should not be called'));
+        }
+
+        function next(err) {
+          self.callback(null, req, res, err);
+        }
+        process.nextTick(function () {
+          requestToken(req, res, next)
+        });
+      },
+
+      'should not respond to request' : function(err, req, res) {
+        assert.isNull(err);
+      },
+      'should next with error' : function(err, req, res, e) {
+        assert.instanceOf(e, Error);
+        assert.equal(e.name, 'AuthorizationError');
+        assert.equal(e.code, 'verifier_invalid');
       },
     },
   },
