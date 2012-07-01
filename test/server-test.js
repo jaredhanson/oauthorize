@@ -33,4 +33,21 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'userDecision middleware': {
+    topic: function() {
+      var server = new Server();
+      return server.userDecision;
+    },
+    
+    'should have implicit transactionLoader': function (userDecision) {
+      var mw = userDecision(function() {}, function() {});
+      assert.isArray(mw);
+      assert.lengthOf(mw, 2);
+    },
+    'should not have implicit transactionLoader if option disabled': function (userDecision) {
+      var mw = userDecision({ loadTransaction: false }, function() {}, function() {});
+      assert.isFunction(mw);
+    },
+  },
+  
 }).export(module);
