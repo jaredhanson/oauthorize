@@ -113,6 +113,17 @@ middleware.
 Once authorized, the client can exchange the request token for an access token
 the token endpoint described above.
 
+#### Implement API Endpoints
+
+Once an access token has been issued, a client will use it to make API requests
+on behalf of the user.
+
+    app.get('/api/userinfo', 
+      passport.authenticate('token', { session: false }),
+      function(req, res) {
+        res.json(req.user);
+      });
+
 #### Session Serialization
 
 Obtaining the user's authorization involves multiple request/response pairs.
@@ -131,6 +142,18 @@ by ID when deserializing.
         return done(null, client);
       });
     });
+
+## Examples
+
+This [example](https://github.com/jaredhanson/oauthorize/tree/master/examples/express2) demonstrates
+how to implement an OAuth service provider, complete with protected API access.
+
+## Tests
+
+    $ npm install --dev
+    $ make test
+
+[![Build Status](https://secure.travis-ci.org/jaredhanson/oauthorize.png)](http://travis-ci.org/jaredhanson/oauthorize)
 
 ## Credits
 
