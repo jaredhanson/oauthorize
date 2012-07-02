@@ -5,6 +5,10 @@ middleware that, combined with application-specific route handlers, can be used
 to assemble a server that implements the [OAuth](http://tools.ietf.org/html/rfc5849)
 1.0 protocol.
 
+## Installation
+
+    $ npm install oauthorize
+
 ## Usage
 
 While OAuth is a rather intricate protocol, at a high level there are three
@@ -108,6 +112,25 @@ middleware.
 
 Once authorized, the client can exchange the request token for an access token
 the token endpoint described above.
+
+#### Session Serialization
+
+Obtaining the user's authorization involves multiple request/response pairs.
+During this time, an OAuth transaction will be serialized to the session.
+Client serialization functions are registered to customize this process, which
+will typically be as simple as serializing the client ID, and finding the client
+by ID when deserializing.
+
+    server.serializeClient(function(client, done) {
+      return done(null, client.id);
+    });
+
+    server.deserializeClient(function(id, done) {
+      Clients.findOne(id, function(err, client) {
+        if (err) { return done(err); }
+        return done(null, client);
+      });
+    });
 
 ## Credits
 

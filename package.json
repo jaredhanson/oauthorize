@@ -2,7 +2,7 @@
   "name": "oauthorize",
   "version": "0.0.0",
   "description": "OAuth service provider toolkit for Node.js.",
-  "keywords": ["oauth", "connect", "express", "middleware"],
+  "keywords": ["oauth", "connect", "express", "middleware", "http", "api"],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/oauthorize.git"
