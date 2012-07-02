@@ -7,7 +7,7 @@
     "oauthorize": "0.x.x",
     "passport": "0.1.x",
     "passport-local": "0.1.x",
-    "passport-http-oauth": "0.x.x",
-    "connect-ensure-login": "0.x.x"
+    "passport-http-oauth": "0.1.x",
+    "connect-ensure-login": "0.1.x"
   }
 }
