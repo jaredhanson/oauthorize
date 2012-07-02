@@ -9,7 +9,16 @@ to assemble a server that implements the [OAuth](http://tools.ietf.org/html/rfc5
 
 While OAuth is a rather intricate protocol, at a high level there are three
 classes of endpoints from an implementation perspective, based on how those
-endpoints are authenticated.
+endpoints are authenticated.  OAuthorize middleware, protected by [Passport](http://passportjs.org/)
+authentication strategies, is used to authenticate clients, obtain authorization
+from users, and issue access tokens.
+
+#### Create an OAuth Server
+
+Call `createServer()` to create a new OAuth server.  This instance exposes
+middleware that will be mounted in routes, as well as configuration options.
+
+    var server = oauthorize.createServer();
 
 #### Implement Token Endpoints
 
@@ -18,7 +27,7 @@ obtain tokens.  First, a client retrieves an unauthorized request token.
 
     app.post('/request_token',
       passport.authenticate('consumer', { session: false }),
-      oauth.requestToken(function(client, callbackURL, done) {
+      server.requestToken(function(client, callbackURL, done) {
         var token = utils.uid(8)
           , secret = utils.uid(32)
 
@@ -33,7 +42,7 @@ After a user has authorized this token, it can be exchanged for an access token.
 
     app.post('/access_token',
       passport.authenticate('consumer', { session: false }),
-      oauth.accessToken(
+      server.accessToken(
         function(requestToken, verifier, info, done) {
           if (verifier != info.verifier) { return done(null, false); }
           return done(null, true);
@@ -53,6 +62,52 @@ After a user has authorized this token, it can be exchanged for an access token.
       ));
 
 #### Implement User Authorization Endpoints
+
+In order to authorize the request token, the client will redirect the user to
+the user authorization endpoint.
+
+    app.get('/dialog/authorize',
+      login.ensureLoggedIn(),
+      server.userAuthorization(function(requestToken, done) {
+        RequestToken.findOne(requestToken, function(err, token) {
+          if (err) { return done(err); }
+          Clients.findOne(token.clientId, function(err, client) {
+            if (err) { return done(err); }
+            return done(null, client, token.callbackUrl);
+          });
+        });
+      }),
+      function(req, res){
+        res.render('dialog', { transactionID: req.oauth.transactionID,
+                               client: req.oauth.client, user: req.user });
+      });
+
+The application is responsible for authenticating the user (in this case, using
+[connect-ensure-login](https://github.com/jaredhanson/connect-ensure-login) middleware)
+and obtaining their consent by rendering a form.
+
+The user must choose to allow access, optionally limited to a narrower scope or
+duration of access.  The form submission can be processed by user decision
+middleware.
+
+    app.post('/dialog/authorize/decision',
+      login.ensureLoggedIn(),
+      server.userDecision(function(requestToken, user, done) {
+        RequestToken.findOne(requestToken, function(err, token) {
+          if (err) { return done(err); }
+          var verifier = utils.uid(8);
+          token.authorized = true;
+          token.userId = user.id;
+          token.verifier = verifier;
+          token.save(function(err) {
+            if (err) { return done(err); }
+            return done(null, verifier);
+          });
+        });
+      }));
+
+Once authorized, the client can exchange the request token for an access token
+the token endpoint described above.
 
 ## Credits
 
