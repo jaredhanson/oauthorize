@@ -14,8 +14,8 @@ to assemble a server that implements the [OAuth](http://tools.ietf.org/html/rfc5
 While OAuth is a rather intricate protocol, at a high level there are three
 classes of endpoints from an implementation perspective, based on how those
 endpoints are authenticated.  OAuthorize middleware, protected by [Passport](http://passportjs.org/)
-authentication strategies, is used to authenticate clients, obtain authorization
-from users, and issue access tokens.
+authentication strategies including [passport-http-oauth](https://github.com/jaredhanson/passport-http-oauth),
+is used to authenticate clients, obtain authorization from users, and issue access tokens.
 
 #### Create an OAuth Server
 

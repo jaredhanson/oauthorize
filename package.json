@@ -1,6 +1,6 @@
 {
   "name": "oauthorize",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "OAuth service provider toolkit for Node.js.",
   "keywords": ["oauth", "connect", "express", "middleware", "http", "api"],
   "repository": {
